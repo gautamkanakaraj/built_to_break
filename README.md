@@ -1,6 +1,8 @@
 # G-Wallet (Hardened Rebuild Phase)
 
-This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks. It now includes a **Batch Payouts Layer** for high-volume transaction coordination.
+This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks. It now includes a **Batch Payouts Layer** for high-volume transaction coordination. 
+video link :
+https://vimeo.com/1152641810?share=copy&fl=sv&fe=ci
 
 ## 🌐 Live Application (Judge Access)
 > [!IMPORTANT]
