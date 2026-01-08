@@ -129,13 +129,24 @@ erDiagram
 
 ---
 
-## 6. Batch Coordination Semantics
+## 6. Hardened Batch Coordination (Orchestration)
 
-The **Batch Payouts Layer** is an orchestration tool, not a single atomic transaction.
+The **Batch Payouts Layer** has been hardened into a robust orchestration engine that prioritizes observability and recovery over simple automation.
 
--   **Atomic Transfers**: Each individual row in a CSV is processed as an independent, atomic, and permanent transaction once committed.
--   **Rollback Behavior**: **Batch-level rollback is NOT supported.** If a batch of 100 transfers fails at item 50, the first 49 transfers remain committed and valid.
--   **Correction Mechanism**: Errors must be handled via **Compensating Transactions** (manually or programmatically reversing specific committed items) rather than a system-wide rollback.
+### 🔄 The Hardened State Machine
+- **State Transitions**: `PENDING` → `PROCESSING` → `COMPLETED` | `PARTIALLY_FAILED`.
+- **Row Tracking**: Every item in a CSV is persisted as a `BatchRow`, linking it to its specific `idempotency_key` and final `transaction_id`.
+
+### ⚡ Resumability & Recovery
+In real-world systems, server crashes during long-running batches are inevitable. G-Wallet handles this via **Index-Based Resumability**:
+1.  The engine tracks the `last_processed_index`.
+2.  If restarted, the execution logic skips all rows up to that index.
+3.  Deterministic idempotency keys (`batch_{id}_row_{index}`) ensure that even if the index is off by one, the ledger remains safe from duplicate debits.
+
+### 🛡️ Compensation vs. Rollback
+As per financial design best practices, we use **Compensating Transactions** instead of database rollbacks for batches:
+- **No Global Rollback**: Since individual payouts are committed immediately for liquidity, a batch failure does not "un-pay" successful recipients.
+- **Manual/API Reversals**: Users can trigger the `/compensate` endpoint to generate reversal transfers (Recipient → Source) for specific rows, maintaining a perfect audit trail of corrections.
 
 ---
 

@@ -13,6 +13,12 @@ class BatchStatus(str, enum.Enum):
     PROCESSING = "PROCESSING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
+    PARTIALLY_FAILED = "PARTIALLY_FAILED"
+
+class BatchRowStatus(str, enum.Enum):
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+    SKIPPED = "SKIPPED"
 
 class User(Base):
     __tablename__ = "users"
@@ -51,8 +57,11 @@ class Batch(Base):
     success_count = Column(Integer, default=0)
     failure_count = Column(Integer, default=0)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)
+    last_processed_index = Column(Integer, default=-1)
 
     transactions = relationship("Transaction", back_populates="batch")
+    rows = relationship("BatchRow", back_populates="batch")
 
 class Transaction(Base):
     __tablename__ = "transactions"
@@ -66,3 +75,19 @@ class Transaction(Base):
     batch_id = Column(Integer, ForeignKey("batches.id"), nullable=True)
 
     batch = relationship("Batch", back_populates="transactions")
+    batch_row = relationship("BatchRow", back_populates="transaction", uselist=False)
+
+class BatchRow(Base):
+    __tablename__ = "batch_rows"
+
+    id = Column(Integer, primary_key=True, index=True)
+    batch_id = Column(Integer, ForeignKey("batches.id"))
+    row_index = Column(Integer)
+    recipient_id = Column(Integer)
+    amount = Column(Float)
+    status = Column(Enum(BatchRowStatus), default=BatchRowStatus.SKIPPED)
+    transaction_id = Column(Integer, ForeignKey("transactions.id"), nullable=True)
+    error_message = Column(String, nullable=True)
+
+    batch = relationship("Batch", back_populates="rows")
+    transaction = relationship("Transaction", back_populates="batch_row")

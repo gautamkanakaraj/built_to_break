@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models import User
+from app.database.models import User, Wallet
 from app.schemas.user import UserCreate
 
 def get_user(db: Session, user_id: int):
@@ -10,6 +10,13 @@ def create_user(db: Session, user: UserCreate):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    # Create associated wallet
+    db_wallet = Wallet(user_id=db_user.id, balance=0.0)
+    db.add(db_wallet)
+    db.commit()
+    db.refresh(db_user)
+    
     return db_user
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):

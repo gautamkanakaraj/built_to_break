@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from .wallet import Wallet
 
 class UserBase(BaseModel):
     username: str
@@ -10,6 +11,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
+    wallet: Optional[Wallet] = None
     
     class Config:
         from_attributes = True

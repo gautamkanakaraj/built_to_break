@@ -23,11 +23,12 @@ This project contains a **production-hardened** wallet transaction engine design
 
 The system includes a batch coordination layer allowing users to execute hundreds of payouts via a single CSV upload.
 
-### Batch Flow:
-1.  **Create Batch**: Define a source wallet for the payouts.
-2.  **Upload CSV**: Provide a list of recipients and amounts.
-3.  **Execute**: The engine processes each row with unique idempotency keys (`batch_{id}_row_{index}`).
-4.  **Monitor**: Real-time progress tracking (Success/Failure/Processed Amount).
+### Hardened Batch Flow:
+1.  **Create Batch**: Define a source wallet and an optional **Batch Idempotency Key** to prevent duplicate CSV submissions.
+2.  **Upload & Sync**: Provide a CSV. The engine syncs every row into a tracking table before execution.
+3.  **Execute with Resumability**: If the server crashes, execution can be resumed from the `last_processed_row`.
+4.  **Monitor Status**: Track states: `PENDING` → `PROCESSING` → `COMPLETED` or `PARTIALLY_FAILED`.
+5.  **Compensation**: Use the Compensation API to generate reversal transfers for specific failed/incorrect rows.
 
 ### CSV Format:
 ```csv
