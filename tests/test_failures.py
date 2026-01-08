@@ -66,7 +66,7 @@ def run_concurrent_test():
 
     for _ in range(5):
         t = threading.Thread(target=attempt_transfer)
-        threads.append(t)
+        threads.append(t)    // all will read the same state
         t.start()
         
     for t in threads:
