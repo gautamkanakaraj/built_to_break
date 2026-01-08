@@ -13,10 +13,7 @@ router = APIRouter()
 @router.post("/token", response_model=user_schema.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = user_crud.get_user_by_username(db, username=form_data.username)
-    if not user:
-        # For a real system we would verify password here using verify_password
-        # making the username check timing-safe. For now, assuming username existence is enough for this hackathon context
-        # OR we assume the "password" sent is ignored or just 'password' (since we didn't add password hash to DB)
+    if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=401,
             detail="Incorrect username or password",

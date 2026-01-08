@@ -52,6 +52,7 @@
             font-size: 1.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             cursor: pointer;
@@ -294,6 +295,10 @@
                         <label>Username</label>
                         <input type="text" id="login-username" required placeholder="Enter handle">
                     </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required placeholder="Enter password">
+                    </div>
                     <button type="submit" style="width:100%">Enter Dashboard</button>
                     <p style="text-align:center; font-size:0.8rem; margin-top:20px; color:var(--text-dim)">
                         No account? <a onclick="navigateTo('register')"
@@ -320,6 +325,17 @@
                     <div class="form-group">
                         <label>Email Address</label>
                         <input type="email" id="register-email" required placeholder="user@finance.io">
+                    </div>
+                    <div class="form-group">
+                        <label>Password (Passkey)</label>
+                        <input type="password" id="register-password" required placeholder="Create password">
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction PIN (4-Digit Numbers)</label>
+                        <input type="password" id="register-pin" maxlength="4" pattern="[0-9]*" inputmode="numeric"
+                            required placeholder="Ex: 1234">
+                        <p style="font-size:0.7rem; color:var(--text-dim); margin-top:5px">Required for moving funds.
+                        </p>
                     </div>
                     <button type="submit" style="width:100%">Create Identity</button>
                     <p style="text-align:center; font-size:0.8rem; margin-top:20px; color:var(--text-dim)">
@@ -415,6 +431,10 @@
                         <input type="number" id="transfer-amount" step="0.01" required placeholder="0.00">
                     </div>
                     <div class="form-group">
+                        <label>Transaction PIN</label>
+                        <input type="password" id="transfer-pin" maxlength="4" required placeholder="4-digit PIN">
+                    </div>
+                    <div class="form-group">
                         <label>Idempotency Key (Safety Guard)</label>
                         <input type="text" id="transfer-key" readonly style="color:var(--text-dim); font-size:0.8rem">
                     </div>
@@ -471,6 +491,10 @@
                         <input type="file" id="batch-file" accept=".csv" required style="padding:10px">
                         <p style="font-size:0.75rem; color:var(--text-dim); margin-top:5px">Format: recipient_id, amount
                             (header required)</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Transaction PIN</label>
+                        <input type="password" id="batch-pin" maxlength="4" required placeholder="4-digit PIN">
                     </div>
                     <div style="display:flex; gap:10px">
                         <button type="submit">Start Batch Processing</button>
@@ -547,6 +571,21 @@
                 </div>
             </div>
 
+            <div class="card" style="margin-top:20px">
+                <h2>Security</h2>
+                <p style="color:var(--text-dim)">Manage your transaction-level protection.</p>
+                <div id="pin-status" style="margin-bottom:15px; font-weight:600"></div>
+
+                <form id="setPinForm" style="max-width:300px">
+                    <div class="form-group">
+                        <label>Set / Update 4-Digit PIN</label>
+                        <input type="password" id="new-pin" maxlength="4" required placeholder="Ex: 1234">
+                    </div>
+                    <button type="submit" style="padding:10px 20px">Save Security PIN</button>
+                    <div id="pin-msg" style="margin-top:10px; font-size:0.85rem"></div>
+                </form>
+            </div>
+
             <h2>Manage Assets</h2>
             <div id="profile-wallets" class="wallet-grid">
                 <!-- Dynamic Content -->
@@ -579,7 +618,13 @@
             try {
                 const response = await fetch(url, { method, headers, body });
                 const result = await response.json();
-                if (!response.ok) throw result;
+                if (!response.ok) {
+                    // Handle FastAPI validation errors (which are objects/arrays)
+                    if (typeof result.detail === 'object') {
+                        throw { detail: JSON.stringify(result.detail) };
+                    }
+                    throw result;
+                }
                 return result;
             } catch (error) {
                 console.error("API Error:", error);
@@ -693,6 +738,15 @@
                     <div style="font-size:0.8rem; color:var(--text-dim)">Owner: ${user.username}</div>
                 </div>
             `).join('');
+
+            const pinStatus = document.getElementById('pin-status');
+            if (user.has_pin) {
+                pinStatus.innerText = "✅ Transaction PIN is active";
+                pinStatus.style.color = "var(--success)";
+            } else {
+                pinStatus.innerText = "⚠️ Transaction PIN not set! Moves are blocked.";
+                pinStatus.style.color = "var(--error)";
+            }
         };
 
         const prepareBatchPayout = async () => {
@@ -747,9 +801,10 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
             const errDiv = document.getElementById('login-error');
             try {
-                const res = await api('/users/token', 'POST', { username, password: 'any' }, true);
+                const res = await api('/users/token', 'POST', { username, password }, true);
                 state.token = res.access_token;
                 localStorage.setItem('token', state.token);
 
@@ -771,14 +826,23 @@
             e.preventDefault();
             const username = document.getElementById('register-username').value;
             const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const pin = document.getElementById('register-pin').value;
             const errDiv = document.getElementById('register-error');
             const successDiv = document.getElementById('register-success');
 
             errDiv.style.display = 'none';
             successDiv.style.display = 'none';
 
+            // Frontend Validation
+            if (!/^\d{4}$/.test(pin)) {
+                errDiv.innerText = "PIN must be exactly 4 numeric digits.";
+                errDiv.style.display = 'block';
+                return;
+            }
+
             try {
-                await api('/users/', 'POST', { username, email });
+                await api('/users/', 'POST', { username, email, password, pin });
                 successDiv.innerText = "Identity Created! You can now login.";
                 successDiv.style.display = 'block';
                 setTimeout(() => navigateTo('login'), 2000);
@@ -808,7 +872,8 @@
                 from_wallet_id: parseInt(document.getElementById('transfer-from-select').value),
                 to_wallet_id: parseInt(document.getElementById('transfer-to-id').value),
                 amount: parseFloat(document.getElementById('transfer-amount').value),
-                idempotency_key: document.getElementById('transfer-key').value
+                idempotency_key: document.getElementById('transfer-key').value,
+                pin: document.getElementById('transfer-pin').value
             };
             try {
                 await api('/transfer/', 'POST', payload);
@@ -831,6 +896,7 @@
                 // We don't use the api helper here because it's a multipart request
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
+                formData.append('pin', document.getElementById('batch-pin').value);
 
                 const response = await fetch(`/batches/${batch.id}/execute`, {
                     method: 'POST',
@@ -845,6 +911,21 @@
 
             } catch (err) {
                 alert(err.detail || "Batch Execution Failed");
+            }
+        });
+
+        document.getElementById('setPinForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = document.getElementById('new-pin').value;
+            const msg = document.getElementById('pin-msg');
+            try {
+                await api('/users/me/pin', 'POST', { pin });
+                msg.innerText = "PIN updated successfully!";
+                msg.style.color = "var(--success)";
+                loadProfile(); // Refresh status
+            } catch (err) {
+                msg.innerText = err.detail || "Failed to set PIN";
+                msg.style.color = "var(--error)";
             }
         });
 

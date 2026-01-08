@@ -1,12 +1,20 @@
 from sqlalchemy.orm import Session
 from app.database.models import User, Wallet
 from app.schemas.user import UserCreate
+from app.core import security
 
 def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
 def create_user(db: Session, user: UserCreate):
-    db_user = User(username=user.username, email=user.email)
+    hashed_password = security.get_password_hash(user.password)
+    hashed_pin = security.get_pin_hash(user.pin) if user.pin else None
+    db_user = User(
+        username=user.username, 
+        email=user.email, 
+        hashed_password=hashed_password,
+        transaction_pin_hash=hashed_pin
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
