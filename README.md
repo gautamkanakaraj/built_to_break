@@ -2,6 +2,13 @@
 
 This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks. It now includes a **Batch Payouts Layer** for high-volume transaction coordination.
 
+## 🌐 Live Application (Judge Access)
+> [!IMPORTANT]
+> **Live Demo**: [https://commemorational-believingly-azaria.ngrok-free.dev](https://commemorational-believingly-azaria.ngrok-free.dev)
+> (Note: This link is active while the developer tunnel is open).
+
+---
+
 ## 🛡️ Hardening Features (ACID Guaranteed)
 
 1.  **Concurrency Safety**: Uses pessimistic row-level locking (`SELECT ... FOR UPDATE`) with deterministic ordering to prevent deadlocks and double-spending.

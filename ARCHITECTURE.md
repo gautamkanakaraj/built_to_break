@@ -17,9 +17,9 @@ The Wallet Engine is a monolith REST API designed for high-concurrency financial
 
 ```mermaid
 graph TD
-    Client[Browser] -->|HTTP:3000| Frontend[Frontend Container (Node.js)]
-    Frontend -->|Proxy| Backend[Backend Container (Python)]
-    Backend -->|SQL| DB[(PostgreSQL)]
+    Client["Browser"] -->|HTTP:3000| Frontend["Frontend Container (Node.js)"]
+    Frontend -->|Proxy| Backend["Backend Container (Python)"]
+    Backend -->|SQL| DB["PostgreSQL"]
     
     subgraph "Container Network"
         Frontend
@@ -27,11 +27,11 @@ graph TD
         DB
     end
 
-    subgraph "Hardening Layers"
-        Auth[JWT Identity Verification]
-        Lock[Pessimistic Row-Level Locking]
-        Check[DB Check Constraints]
-        Idempotency[Unique Request Keys]
+    subgraph "Hardening Layers (Backend)"
+        Backend -.-> Auth["JWT Identity Verification"]
+        Backend -.-> Lock["Pessimistic Row-Level Locking"]
+        Backend -.-> Check["DB Check Constraints"]
+        Backend -.-> Idempotency["Unique Request Keys"]
     end
 ```
 
@@ -69,7 +69,7 @@ erDiagram
         int id PK
         int user_id FK
         float balance
-        enum status
+        string status
     }
 
     TRANSACTION {
@@ -78,7 +78,7 @@ erDiagram
         int to_wallet_id FK
         float amount
         datetime timestamp
-        string idempotency_key UK
+        string idempotency_key
         int batch_id FK
     }
 
@@ -86,7 +86,7 @@ erDiagram
         int id PK
         int user_id FK
         int source_wallet_id FK
-        enum status
+        string status
         float total_amount
         int item_count
         int success_count
