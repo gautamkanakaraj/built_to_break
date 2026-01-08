@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from typing import List
 from app.database.db import get_db
@@ -53,6 +53,7 @@ def create_new_batch(
 async def execute_batch(
     batch_id: int,
     file: UploadFile = File(...),
+    pin: str = Form(...),
     db: Session = Depends(get_db),
     current_user: user_schema.User = Depends(security.get_current_user)
 ):
@@ -65,6 +66,13 @@ async def execute_batch(
     if batch.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
     
+    # 2. PIN Authorization
+    if not user.transaction_pin_hash:
+        raise HTTPException(status_code=403, detail="Transaction PIN not set. Please set it via /users/me/pin")
+    
+    if not security.verify_transaction_pin(pin, user.transaction_pin_hash):
+        raise HTTPException(status_code=403, detail="Invalid Transaction PIN")
+
     # Allow execution if PENDING or if we are resuming (PROCESSING)
     if batch.status not in [BatchStatus.PENDING, BatchStatus.PROCESSING]:
         raise HTTPException(status_code=400, detail=f"Batch cannot be executed in current status: {batch.status}")
@@ -119,7 +127,8 @@ async def execute_batch(
                 to_wallet_id=recipient_id,
                 amount=amount,
                 idempotency_key=idempotency_key,
-                batch_id=batch_id
+                batch_id=batch_id,
+                pin="BATCH_EXECUTION"
             )
             
             # Core transfer logic (Hardened)
@@ -169,6 +178,13 @@ def compensate_batch(
     if batch.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
+    # PIN Authorization
+    if not user.transaction_pin_hash:
+        raise HTTPException(status_code=403, detail="Transaction PIN not set. Please set it via /users/me/pin")
+    
+    if not security.verify_transaction_pin(request.pin, user.transaction_pin_hash):
+        raise HTTPException(status_code=403, detail="Invalid Transaction PIN")
+
     results = []
     db_rows = batch_crud.get_batch_rows(db, batch_id)
     
@@ -189,7 +205,8 @@ def compensate_batch(
                 from_wallet_id=row.recipient_id,
                 to_wallet_id=batch.source_wallet_id,
                 amount=row.amount,
-                idempotency_key=f"reversal_batch_{batch_id}_row_{idx}"
+                idempotency_key=f"reversal_batch_{batch_id}_row_{idx}",
+                pin="COMPENSATION"
             )
             transaction_crud.create_transfer_secure(db, rev_tx_data)
             results.append({"index": idx, "status": "Compensated"})

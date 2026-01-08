@@ -17,6 +17,7 @@ class BatchItem(BaseModel):
 
 class BatchExecute(BaseModel):
     items: List[BatchItem]
+    pin: str
 
 class BatchRow(BaseModel):
     id: int
@@ -48,3 +49,4 @@ class Batch(BatchBase):
 
 class BatchCompensationRequest(BaseModel):
     row_indices: List[int]
+    pin: str

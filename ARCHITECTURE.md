@@ -136,6 +136,10 @@ The **Batch Payouts Layer** has been hardened into a robust orchestration engine
 ### 🔄 The Hardened State Machine
 - **State Transitions**: `PENDING` → `PROCESSING` → `COMPLETED` | `PARTIALLY_FAILED`.
 - **Row Tracking**: Every item in a CSV is persisted as a `BatchRow`, linking it to its specific `idempotency_key` and final `transaction_id`.
+- **Idempotency**: All operations are guarded by client-side keys.
+- **PIN Authorization**: Mandatory 4-digit numeric PIN for sensitive actions (Transfers, Batch Execution, Compensation).
+
+## 7. Core Principles
 
 ### ⚡ Resumability & Recovery
 In real-world systems, server crashes during long-running batches are inevitable. G-Wallet handles this via **Index-Based Resumability**:
@@ -150,7 +154,29 @@ As per financial design best practices, we use **Compensating Transactions** ins
 
 ---
 
-## 7. Known Limitations (By Design)
+## 7. Transaction-Level PIN Authorization
+
+G-Wallet distinguishes between **Authentication** (who you are) and **Authorization** (approving an action).
+
+### 🔑 Security Design
+- **PIN Ownership**: Each user sets a 4-digit numeric PIN.
+- **Hashing**: PINs are never stored in plain text. They are hashed using `PBKDF2-SHA256` before being persisted to the `users` table.
+- **Requirement**: A valid PIN is REQUIRED for:
+  - Wallet-to-Wallet Transfers
+  - Batch Execution
+  - Automated Compensation (Reversals)
+- **Compromised Token Protection**: Even if a JWT is stolen, the attacker cannot drain funds without the second factor (PIN).
+
+### ⚙️ Enforcement Flow
+1. API receives request + JWT + PIN.
+2. Backend verifies JWT (Who is the user?).
+3. Backend fetches `transaction_pin_hash` for that user.
+4. Backend verifies provided PIN against the hash.
+5. If valid, the financial logic proceeds. If invalid, the request is rejected *before* any database locks or balance checks occur.
+
+---
+
+## 8. Known Limitations (By Design)
 
 To maintain core correctness and simplicity, the following features are intentionally **Unsupported**:
 -   **One-to-Many Atomic Transactions**: Transfers are strictly 1:1.

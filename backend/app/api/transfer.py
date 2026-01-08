@@ -27,6 +27,13 @@ def transfer_money(
     
     if wallet.user_id != user.id:
         raise HTTPException(status_code=403, detail="You do not own the source wallet")
+    
+    # 2. PIN Authorization
+    if not user.transaction_pin_hash:
+        raise HTTPException(status_code=403, detail="Transaction PIN not set. Please set it via /users/me/pin")
+    
+    if not security.verify_transaction_pin(transaction.pin, user.transaction_pin_hash):
+        raise HTTPException(status_code=403, detail="Invalid Transaction PIN")
 
     return transaction_crud.create_transfer_secure(db=db, transaction=transaction)
 

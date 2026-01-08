@@ -9,6 +9,7 @@ class TransactionBase(BaseModel):
 
 class TransactionCreate(TransactionBase):
     idempotency_key: str
+    pin: str
     batch_id: Optional[int] = None
 
 class Transaction(TransactionBase):

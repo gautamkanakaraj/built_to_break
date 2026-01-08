@@ -11,7 +11,7 @@ SECRET_KEY = "build-to-break-hackathon-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 class Token(BaseModel):
@@ -26,6 +26,16 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
+
+def verify_transaction_pin(plain_pin: str, hashed_pin: str) -> bool:
+    if not plain_pin.isdigit() or len(plain_pin) != 4:
+        return False
+    return pwd_context.verify(plain_pin, hashed_pin)
+
+def get_pin_hash(pin: str) -> str:
+    if not pin.isdigit() or len(pin) != 4:
+        raise ValueError("PIN must be exactly 4 digits")
+    return pwd_context.hash(pin)
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()

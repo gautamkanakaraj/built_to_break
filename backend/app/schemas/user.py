@@ -12,9 +12,13 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     wallet: Optional[Wallet] = None
+    has_pin: bool = False
     
     class Config:
         from_attributes = True
+
+class UserSetPin(BaseModel):
+    pin: str
 
 class Token(BaseModel):
     access_token: str
