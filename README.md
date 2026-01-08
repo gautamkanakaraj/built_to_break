@@ -39,14 +39,61 @@ Ensure you have Docker and Docker Compose installed.
 
 ```bash
 # Clean start (recommended to apply schema changes)
-docker-compose down -v
-docker-compose up --build -d
+docker-compose -f infra/docker-compose.yml down -v
+docker-compose -f infra/docker-compose.yml up --build -d
 ```
 
-*   **Premium Web UI**: [http://localhost:8000](http://localhost:8000)
-*   **Interactive API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+*   **Premium Web UI**: [http://localhost:3000](http://localhost:3000)
+*   **Interactive API Docs**: [http://localhost:4000/docs](http://localhost:4000/docs)
 
-### 2. Run Verification Suite
+### 2. Deployment Independence (Judge-Ready)
+> [!IMPORTANT]
+> **This project is fully independent of the local developer machine.** 
+> Judges can deploy the complete G-Wallet environment on any cloud instance (AWS, GCP, DigitalOcean) or local Linux server without needing the source code. The engine is served via pre-built public images on Docker Hub.
+
+#### Self-Service Deployment for Evaluators
+For a quick, reproducible evaluation on a remote server, use the pre-built images from Docker Hub.
+
+**Create a `docker-compose.yml` with the following:**
+```yaml
+version: '3.9'
+services:
+  backend:
+    image: gautamkanakaraj/g-wallet-backend:latest
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wallet_db
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    image: gautamkanakaraj/g-wallet-frontend:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:4000
+    depends_on:
+      - backend
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=wallet_db
+    restart: always
+```
+
+**Run command:**
+```bash
+docker-compose up -d
+```
+The system will be accessible at `http://<server-ip>:3000`.
+
+### 3. Run Verification Suite
 We have provided specialized scripts to prove the engine's resilience against build-phase failures.
 
 ```bash

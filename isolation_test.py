@@ -6,7 +6,7 @@ import sys
 import random
 import uuid
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:4000"
 
 def get_token(username):
     r = requests.post(f"{BASE_URL}/users/token", 

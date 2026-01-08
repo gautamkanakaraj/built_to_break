@@ -5,7 +5,7 @@ import random
 import time
 import uuid
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:4000"
 
 def get_token(username):
     # Register/Get token is a bit tricky since we don't have separate auth flow for test users.

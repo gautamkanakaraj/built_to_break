@@ -17,11 +17,16 @@ The Wallet Engine is a monolith REST API designed for high-concurrency financial
 
 ```mermaid
 graph TD
-    Client[Client / UI] -->|JWT Auth| API[FastAPI Router]
-    API --> CRUD[Secure CRUD Layer]
-    CRUD --> ORM[SQLAlchemy 2.0]
-    ORM --> DB[(PostgreSQL)]
+    Client[Browser] -->|HTTP:3000| Frontend[Frontend Container (Node.js)]
+    Frontend -->|Proxy| Backend[Backend Container (Python)]
+    Backend -->|SQL| DB[(PostgreSQL)]
     
+    subgraph "Container Network"
+        Frontend
+        Backend
+        DB
+    end
+
     subgraph "Hardening Layers"
         Auth[JWT Identity Verification]
         Lock[Pessimistic Row-Level Locking]
@@ -31,16 +36,74 @@ graph TD
 ```
 
 ### Flow Sequence:
-1.  **Request**: Client sends HTTP request with a JWT token.
-2.  **Identity**: Identity is inferred strictly from the token (preventing spoofing).
-3.  **Transaction Scope**: A single database transaction is opened per transfer.
-4.  **Locking**: Row-level locks (`FOR UPDATE`) are acquired in deterministic order (Low ID first) to prevent deadlocks.
-5.  **Validation**: Pydantic and logic checks ensure balance invariants are met.
-6.  **Persistence**: Changes are committed atomically to PostgreSQL.
+1.  **Request Entry**: A user interacts with the **Browser**, which makes an HTTP request to `localhost:3000`.
+2.  **Frontend Serving**: The **Frontend Container** (Node.js) serves the static SPA assets and intercepts API calls.
+3.  **API Proxying**: Requests targeting `/users`, `/wallets`, etc., are proxied to the **Backend Container** via the internal Docker network (`http://backend:4000`).
+4.  **Identity Verification**: The Backend extracts the JWT from the `Authorization` header. Identity is **strictly inferred** from the cryptographically signed token to prevent sender impersonation.
+5.  **Secure CRUD Execution**:
+    - **Transaction Scope**: A single database transaction is opened.
+    - **Lock Ordering**: Involved wallet rows are selected and locked (`FOR UPDATE`) in deterministic order (ascending ID) to prevent circular wait deadlocks.
+    - **Balance Validation**: The engine checks if the locked sender row has sufficient funds.
+6.  **Atomic Persistence**: Balance changes are updated and the transaction (ledger record) is written. The database transaction is committed, ensuring all changes are permanent or none are.
 
 ---
 
-## 3. Financial Integrity & Data Representation
+## 3. Database Schema
+
+The G-Wallet uses a relational schema designed for strict consistency and auditability.
+
+```mermaid
+erDiagram
+    USER ||--|{ WALLET : "owns"
+    USER ||--|{ BATCH : "creates"
+    WALLET ||--|{ TRANSACTION : "sends/receives"
+    BATCH ||--|{ TRANSACTION : "coordinates"
+
+    USER {
+        int id PK
+        string username
+        string email
+    }
+
+    WALLET {
+        int id PK
+        int user_id FK
+        float balance
+        enum status
+    }
+
+    TRANSACTION {
+        int id PK
+        int from_wallet_id FK
+        int to_wallet_id FK
+        float amount
+        datetime timestamp
+        string idempotency_key UK
+        int batch_id FK
+    }
+
+    BATCH {
+        int id PK
+        int user_id FK
+        int source_wallet_id FK
+        enum status
+        float total_amount
+        int item_count
+        int success_count
+        int failure_count
+        datetime timestamp
+    }
+```
+
+### Table Definitions:
+-   **Users**: Stores identity information.
+-   **Wallets**: The source of truth for balances. Includes a database-level `CheckConstraint` (`balance >= 0`).
+-   **Transactions**: The immutable ledger. Every transfer creates a record here. The `idempotency_key` ensures a unique entry per request.
+-   **Batches**: Orchestration metadata for mass payouts. Links multiple transactions together but provides no atomicity guarantees across them.
+
+---
+
+## 4. Financial Integrity & Data Representation
 
 ### Money Representation
 -   **Current Implementation**: Uses `Float` for rapid prototyping and implementation simplicity (compatible with standard JSON serialization).
@@ -54,7 +117,7 @@ graph TD
 
 ---
 
-## 4. The Hardening Journey (Failure vs. Fix)
+## 5. The Hardening Journey (Failure vs. Fix)
 
 | Vulnerability | Build Phase (Fragile) | Rebuild Phase (Hardened) | Technical Implementation |
 | :--- | :--- | :--- | :--- |
@@ -66,7 +129,7 @@ graph TD
 
 ---
 
-## 5. Batch Coordination Semantics
+## 6. Batch Coordination Semantics
 
 The **Batch Payouts Layer** is an orchestration tool, not a single atomic transaction.
 
@@ -76,7 +139,7 @@ The **Batch Payouts Layer** is an orchestration tool, not a single atomic transa
 
 ---
 
-## 6. Known Limitations (By Design)
+## 7. Known Limitations (By Design)
 
 To maintain core correctness and simplicity, the following features are intentionally **Unsupported**:
 -   **One-to-Many Atomic Transactions**: Transfers are strictly 1:1.
@@ -86,7 +149,7 @@ To maintain core correctness and simplicity, the following features are intentio
 
 ---
 
-## 7. Real-World Alignment Statement
+## 8. Real-World Alignment Statement
 
 The G-Wallet architecture is modeled after the **Ledger-first systems** used in modern banking, payment gateways, and payroll platforms. By prioritizing row-level consistency and explicit transfer records (Ledgers) over complex application-side state management, it mirrors the robustness required for actual financial processing where every cent must be accounted for and immutable once settled.
 

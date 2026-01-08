@@ -1,0 +1,52 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ../backend
+    expose:
+      - "4000"
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/wallet_db
+    depends_on:
+      - db
+    networks:
+      - wallet-net
+    restart: always
+
+  frontend:
+    build:
+      context: ../frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:4000
+      - PORT=3000
+    depends_on:
+      - backend
+    networks:
+      - wallet-net
+    restart: always
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=wallet_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - wallet-net
+    restart: always
+
+networks:
+  wallet-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
