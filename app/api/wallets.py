@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from typing import List
 from sqlalchemy.orm import Session
 from app.database.db import get_db
 from app.schemas import wallet as wallet_schema
@@ -23,3 +24,6 @@ def deposit(wallet_id: int, deposit: wallet_schema.WalletDeposit, db: Session = 
     if not updated_wallet:
          raise HTTPException(status_code=404, detail="Wallet not found")
     return updated_wallet
+@router.post("/balances", response_model=List[wallet_schema.Wallet])
+def read_wallets_balances(wallet_ids: List[int], db: Session = Depends(get_db)):
+    return wallet_crud.get_wallets_balances(db, wallet_ids=wallet_ids)

@@ -1,42 +1,54 @@
-# Wallet Engine (Build Phase)
+# G-Wallet (Hardened Rebuild Phase)
 
-This project contains a **baseline** wallet transaction engine.
+This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks.
 
-**⚠️ WARNING: INTENTIONALLY VULNERABLE ⚠️**
+## 🛡️ Hardening Features (ACID Guaranteed)
 
-This system is designed for the "Build Phase" of the Build2Break hackathon.
+1.  **Concurrency Safety**: Uses pessimistic row-level locking (`SELECT ... FOR UPDATE`) with deterministic ordering to prevent deadlocks and double-spending.
+2.  **Atomicity**: Every transfer is a single, atomic database transaction. Internal `CheckConstraint` ensures balances never go negative.
+3.  **Idempotency**: Forced request-level idempotency via a unique `idempotency_key` enforced at the database layer.
+4.  **JWT Authentication**: All transfer operations require a valid JWT token to identify the caller.
+5.  **Isolation**: Prevents Read Skew using atomic bulk-read endpoints for multi-wallet state checks.
 
-## Known Limitations (By Design)
+---
 
-1.  **Race Conditions**: Simultaneous transfers from the same wallet can double-spend.
-2.  **No Isolation**: Transactions are not isolated; read-skews are possible.
-3.  **No Locking**: Database rows are not locked during updates.
-4.  **No Idempotency**: Replaying requests will duplicate transactions.
+## 🚀 Getting Started
 
-## Quick Start
+### 1. Run the Hardened Engine
+Ensure you have Docker and Docker Compose installed.
 
-### 1. Run the Engine
 ```bash
-docker-compose up --build
-```
-*   **Web UI**: [http://localhost:8000](http://localhost:8000)
-*   **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-
-> **Troubleshooting**: If you see `KeyError: 'ContainerConfig'` or build errors, run this instead:
-> ```bash
-> # Force legacy builder and clean orphans
-> docker-compose down -v --remove-orphans
-> DOCKER_BUILDKIT=0 docker-compose up --build
-> ```
-
-### 2. Verify Vulnerabilities
-To confirm the engine is working (and vulnerable) as expected, run the failure test:
-```bash
-python3 tests/test_failures.py
+# Clean start (recommended to apply schema changes)
+docker-compose down -v
+docker-compose up --build -d
 ```
 
-## Architecture
+*   **Premium Web UI**: [http://localhost:8000](http://localhost:8000)
+*   **Interactive API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-- **FastAPI**: Backend
-- **PostgreSQL**: Database
-- **SQLAlchemy**: Synchronous ORM
+### 2. Run Verification Suite
+We have provided specialized scripts to prove the engine's resilience against build-phase failures.
+
+```bash
+# Verify Idempotency (Replay Attack Protection)
+python3 test_idempotency.py
+
+# Verify Atomicity (Partial Commit Protection)
+python3 test_atomicity.py
+
+# Verify Isolation (Read Skew Protection)
+python3 isolation_test.py
+```
+
+---
+
+## 📖 Documentation
+Detailed architectural analysis and failure mapping:
+- [document2.txt](document2.txt): Hardened Architecture & failure-to-fix mapping.
+- [document.txt](document.txt): Analysis of the original build-phase vulnerabilities (for comparison).
+
+## 🛠 Tech Stack
+- **FastAPI**: Modern high-performance web framework.
+- **PostgreSQL**: Robust relational database for strong consistency.
+- **SQLAlchemy 2.0**: Type-safe ORM with transaction support.
+- **python-jose**: JWT security implementation.

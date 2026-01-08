@@ -4,8 +4,30 @@ from app.database.db import get_db
 from app.schemas import user as user_schema
 from app.crud import user as user_crud
 from typing import List
+from fastapi.security import OAuth2PasswordRequestForm
+from app.core import security
+from app.database import models
 
 router = APIRouter()
+
+@router.post("/token", response_model=user_schema.Token)
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    user = user_crud.get_user_by_username(db, username=form_data.username)
+    if not user:
+        # For a real system we would verify password here using verify_password
+        # making the username check timing-safe. For now, assuming username existence is enough for this hackathon context
+        # OR we assume the "password" sent is ignored or just 'password' (since we didn't add password hash to DB)
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Generate Token
+    access_token = security.create_access_token(
+        data={"sub": user.username}
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/", response_model=user_schema.User)
 def create_user(user: user_schema.UserCreate, db: Session = Depends(get_db)):

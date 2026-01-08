@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Enum, CheckConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
@@ -25,6 +25,10 @@ class Wallet(Base):
     balance = Column(Float, default=0.0)
     status = Column(Enum(WalletStatus), default=WalletStatus.ACTIVE)
 
+    __table_args__ = (
+        CheckConstraint('balance >= 0', name='check_min_balance'),
+    )
+
     owner = relationship("User", back_populates="wallet")
     sent_transactions = relationship("Transaction", foreign_keys="Transaction.from_wallet_id")
     received_transactions = relationship("Transaction", foreign_keys="Transaction.to_wallet_id")
@@ -37,3 +41,4 @@ class Transaction(Base):
     to_wallet_id = Column(Integer, ForeignKey("wallets.id"))
     amount = Column(Float)
     timestamp = Column(DateTime, default=datetime.utcnow)
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)

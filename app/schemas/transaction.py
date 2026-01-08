@@ -7,10 +7,11 @@ class TransactionBase(BaseModel):
     amount: float
 
 class TransactionCreate(TransactionBase):
-    pass
+    idempotency_key: str
 
 class Transaction(TransactionBase):
     id: int
+    idempotency_key: str
     timestamp: datetime
 
     class Config:
