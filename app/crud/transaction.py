@@ -85,3 +85,11 @@ def create_transfer_secure(db: Session, transaction: TransactionCreate):
 def create_transfer_vulnerable(db: Session, transaction: TransactionCreate):
     # ... legacy code ...
     pass 
+
+def get_transactions_by_wallet(db: Session, wallet_id: int):
+    return db.query(Transaction).filter(
+        or_(
+            Transaction.from_wallet_id == wallet_id,
+            Transaction.to_wallet_id == wallet_id
+        )
+    ).order_by(Transaction.timestamp.desc()).all()

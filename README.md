@@ -44,6 +44,7 @@ python3 isolation_test.py
 
 ## 📖 Documentation
 Detailed architectural analysis and failure mapping:
+- [ui_guide.md](ui_guide.md): Comprehensive field-level guide for the Control Panel UI.
 - [document2.txt](document2.txt): Hardened Architecture & failure-to-fix mapping.
 - [document.txt](document.txt): Analysis of the original build-phase vulnerabilities (for comparison).
 

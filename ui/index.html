@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G-Wallet | Pro-Hardened FinTech</title>
+    <title>G-Wallet | Hardened Navigation</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -28,178 +28,82 @@
             color: var(--text-main);
             font-family: 'Outfit', sans-serif;
             margin: 0;
-            padding: 40px 20px;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
+        }
+
+        /* --- Navigation Bar --- */
+        nav {
+            background: rgba(5, 7, 10, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        h1 {
-            font-size: 3rem;
+        .nav-logo {
+            font-size: 1.5rem;
             font-weight: 700;
-            margin: 0;
-            letter-spacing: -1px;
             background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        p.subtitle {
-            color: var(--text-dim);
-            font-size: 1.1rem;
-            margin-top: 10px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 30px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(92, 124, 255, 0.3);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        h2 {
-            font-size: 1.4rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #fff;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 14px 18px;
-            color: #fff;
-            font-family: inherit;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 4px rgba(92, 124, 255, 0.1);
-        }
-
-        button {
-            width: 100%;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 10px;
         }
 
-        button:hover {
-            background: var(--primary-hover);
-            transform: scale(1.02);
+        .nav-links {
+            display: flex;
+            gap: 20px;
         }
 
-        button:active {
-            transform: scale(0.98);
-        }
-
-        button.secondary {
-            background: transparent;
-            border: 1px solid var(--glass-border);
-        }
-
-        pre {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 20px;
-            font-family: 'JetBrains Mono', monospace;
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
             font-size: 0.9rem;
-            color: var(--success);
-            max-height: 200px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
+            font-weight: 600;
+            transition: color 0.2s;
+            cursor: pointer;
         }
 
-        pre.error {
-            color: var(--error);
-            border-color: rgba(255, 77, 77, 0.3);
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-main);
         }
 
-        .auth-status {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
+        .user-chip {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 0.9rem;
+            background: var(--glass-bg);
+            padding: 5px 15px;
+            border-radius: 50px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
         }
 
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--text-dim);
+        /* --- Layout --- */
+        .container {
+            flex: 1;
+            max-width: 1000px;
+            width: 90%;
+            margin: 40px auto;
         }
 
-        .dot.active {
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
         }
 
-        /* Micro-animations */
+        .page.active {
+            display: block;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -212,168 +116,376 @@
             }
         }
 
+        /* --- Cards & Forms --- */
         .card {
-            animation: fadeIn 0.5s ease-out forwards;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 0;
+            letter-spacing: -1px;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input,
+        select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            background: var(--primary-hover);
+        }
+
+        button.secondary {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-dim);
+        }
+
+        /* --- Components --- */
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .wallet-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .wallet-id {
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .wallet-balance {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            font-size: 0.9rem;
+        }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-success {
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: var(--text-dim);
+        }
+
+        .error-msg {
+            color: var(--error);
+            background: rgba(255, 77, 77, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="auth-status" id="authStatus">
-        <div class="dot" id="authDot"></div>
-        <span id="authText">Unauthenticated</span>
-        <button onclick="logout()" id="logoutBtn"
-            style="display:none; width:auto; padding:5px 10px; margin:0; font-size:0.75rem"
-            class="secondary">Logout</button>
-    </div>
+    <!-- AUTH BAR (HIDDEN WHEN LOGGED OUT) -->
+    <nav id="topNav" style="display:none">
+        <div class="nav-logo" onclick="navigateTo('dashboard')">G-WALLET</div>
+        <div class="nav-links">
+            <a onclick="navigateTo('dashboard')" id="link-dashboard">Dashboard</a>
+            <a onclick="navigateTo('transfer')" id="link-transfer">Transfer</a>
+            <a onclick="navigateTo('history')" id="link-history">History</a>
+            <a onclick="navigateTo('profile')" id="link-profile">Profile</a>
+        </div>
+        <div class="user-chip">
+            <span id="nav-username">User</span>
+            <a onclick="logout()" style="color:var(--error); font-size:0.8rem; margin-left:10px">Logout</a>
+        </div>
+    </nav>
 
     <div class="container">
-        <header>
-            <h1>G-Wallet PRO</h1>
-            <p class="subtitle">Hardened FinTech Transaction Engine | ACID Compliant</p>
-        </header>
 
-        <div class="grid">
-            <!-- 1. AUTHENTICATION -->
-            <div class="card">
-                <h2>🔐 Secure Login</h2>
+        <!-- PAGE 1: LOGIN -->
+        <div id="page-login" class="page">
+            <div class="card" style="max-width: 400px; margin: 100px auto;">
+                <h1>Login</h1>
+                <p style="color:var(--text-dim)">Access your hardened transaction engine.</p>
+                <div id="login-error" class="error-msg"></div>
                 <form id="loginForm">
-                    <div class="input-group">
+                    <div class="form-group">
                         <label>Username</label>
-                        <input type="text" name="username" required placeholder="User from Step 2">
+                        <input type="text" id="login-username" required placeholder="Enter handle">
                     </div>
-                    <button type="submit">Authenticate</button>
+                    <button type="submit" style="width:100%">Enter Dashboard</button>
+                    <p style="text-align:center; font-size:0.8rem; margin-top:20px; color:var(--text-dim)">
+                        No account? <a onclick="navigateTo('register')"
+                            style="color:var(--primary); cursor:pointer">Register here</a>
+                    </p>
                 </form>
-                <div id="loginResult"></div>
-            </div>
-
-            <!-- 2. CREATE USER -->
-            <div class="card">
-                <h2>👤 Identity Setup</h2>
-                <form id="createUserForm">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" name="username" required placeholder="unique_handle">
-                    </div>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" name="email" required placeholder="user@fintech.io">
-                    </div>
-                    <button type="submit" class="secondary">Provision Identity</button>
-                </form>
-                <div id="createUserResult"></div>
-            </div>
-
-            <!-- 3. WALLET MGMT -->
-            <div class="card">
-                <h2>💳 Wallet Factory</h2>
-                <form id="createWalletForm">
-                    <div class="input-group">
-                        <label>Owner User ID</label>
-                        <input type="number" name="user_id" required placeholder="101">
-                    </div>
-                    <button type="submit" class="secondary">Open New Wallet</button>
-                </form>
-                <div id="createWalletResult"></div>
-            </div>
-
-            <!-- 4. BALANCE -->
-            <div class="card">
-                <h2>📊 Real-time Balance</h2>
-                <form id="checkBalanceForm">
-                    <div class="input-group">
-                        <label>Wallet ID</label>
-                        <input type="number" name="wallet_id" required placeholder="1">
-                    </div>
-                    <button type="submit">Refresh Snapshot</button>
-                </form>
-                <div id="checkBalanceResult"></div>
-            </div>
-
-            <!-- 5. FUNDING -->
-            <div class="card">
-                <h2>💰 Instant Deposit</h2>
-                <form id="depositForm">
-                    <div class="input-group">
-                        <label>Target Wallet ID</label>
-                        <input type="number" name="wallet_id" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Amount (USD)</label>
-                        <input type="number" step="0.01" name="amount" required placeholder="0.00">
-                    </div>
-                    <button type="submit" class="secondary">Fund Account</button>
-                </form>
-                <div id="depositResult"></div>
-            </div>
-
-            <!-- 6. SECURE TRANSFER -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h2>⚡ Atomic Transfer (Hardened)</h2>
-                <form id="transferForm">
-                    <div style="display:flex; gap:20px">
-                        <div class="input-group" style="flex:1">
-                            <label>Sender Wallet ID</label>
-                            <input type="number" name="from_wallet_id" required>
-                        </div>
-                        <div class="input-group" style="flex:1">
-                            <label>Recipient Wallet ID</label>
-                            <input type="number" name="to_wallet_id" required>
-                        </div>
-                    </div>
-                    <div class="input-group">
-                        <label>Amount (USD)</label>
-                        <input type="number" step="0.01" name="amount" required placeholder="0.00">
-                    </div>
-                    <div class="input-group">
-                        <label>Idempotency Key (Auto-generated)</label>
-                        <input type="text" id="idempotencyKey" name="idempotency_key" readonly
-                            style="color:var(--text-dim); font-size:0.8rem">
-                    </div>
-                    <button type="submit" style="background:var(--success); color:#000; font-weight:700">Execute Secure
-                        Transfer</button>
-                </form>
-                <div id="transferResult"></div>
             </div>
         </div>
+
+        <!-- NEW PAGE: REGISTER -->
+        <div id="page-register" class="page">
+            <div class="card" style="max-width: 400px; margin: 100px auto;">
+                <h1>Register</h1>
+                <p style="color:var(--text-dim)">Create a new identity on the hardened ledger.</p>
+                <div id="register-error" class="error-msg"></div>
+                <div id="register-success"
+                    style="color:var(--success); background:rgba(0,255,136,0.1); padding:15px; border-radius:10px; margin-bottom:20px; display:none;">
+                </div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="register-username" required placeholder="Pick a handle">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="register-email" required placeholder="user@finance.io">
+                    </div>
+                    <button type="submit" style="width:100%">Create Identity</button>
+                    <p style="text-align:center; font-size:0.8rem; margin-top:20px; color:var(--text-dim)">
+                        Already have an account? <a onclick="navigateTo('login')"
+                            style="color:var(--primary); cursor:pointer">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 2: DASHBOARD -->
+        <div id="page-dashboard" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px">
+                <div>
+                    <h1>Welcome, <span id="dash-username">User</span></h1>
+                    <p class="subtitle" style="color:var(--text-dim)">Wallet Engine Control Panel</p>
+                </div>
+                <div style="display:flex; gap:10px">
+                    <button onclick="navigateTo('create-wallet')" class="secondary">New Wallet</button>
+                    <button onclick="navigateTo('deposit')">Add Money</button>
+                </div>
+            </div>
+
+            <h2>Your Wallets</h2>
+            <div id="dashboard-wallets" class="wallet-grid">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
+        <!-- PAGE 3: CREATE WALLET -->
+        <div id="page-create-wallet" class="page">
+            <div class="card">
+                <h2>Create New Wallet</h2>
+                <p style="color:var(--text-dim); margin-bottom:30px">Provision a new cryptographic wallet on the
+                    hardened ledger.</p>
+                <form id="createWalletForm">
+                    <div class="form-group">
+                        <label>Initial Configuration</label>
+                        <div
+                            style="padding:15px; background:rgba(0,0,0,0.2); border-radius:12px; color:var(--text-dim); font-size:0.9rem">
+                            Standard Active Wallet | 0.00 USD Balance
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button type="submit">Confirm Provisioning</button>
+                        <button type="button" onclick="navigateTo('dashboard')" class="secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 4: ADD MONEY -->
+        <div id="page-deposit" class="page">
+            <div class="card">
+                <h2>Add Money (Deposit)</h2>
+                <p style="color:var(--text-dim); margin-bottom:30px">Fund your accounts via external secure gateway.</p>
+                <form id="depositForm">
+                    <div class="form-group">
+                        <label>Select Wallet</label>
+                        <select id="deposit-wallet-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (USD)</label>
+                        <input type="number" id="deposit-amount" step="0.01" required placeholder="0.00">
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button type="submit">Execute Deposit</button>
+                        <button type="button" onclick="navigateTo('dashboard')" class="secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 5: TRANSFER MONEY -->
+        <div id="page-transfer" class="page">
+            <div class="card">
+                <h2>Secure Transfer</h2>
+                <p style="color:var(--text-dim); margin-bottom:30px">Move funds between wallets with ACID guarantees.
+                </p>
+                <form id="transferForm">
+                    <div style="display:flex; gap:20px">
+                        <div class="form-group" style="flex:1">
+                            <label>From Wallet</label>
+                            <select id="transfer-from-select" required onchange="updateTransferUI()"></select>
+                        </div>
+                        <div class="form-group" style="flex:1">
+                            <label>To Wallet ID</label>
+                            <input type="number" id="transfer-to-id" required placeholder="Target ID">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (USD)</label>
+                        <input type="number" id="transfer-amount" step="0.01" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Idempotency Key (Safety Guard)</label>
+                        <input type="text" id="transfer-key" readonly style="color:var(--text-dim); font-size:0.8rem">
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button type="submit" style="background:var(--success); color:#000">Execute Transaction</button>
+                        <button type="button" onclick="navigateTo('dashboard')" class="secondary">Back to Home</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 6: HISTORY -->
+        <div id="page-history" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+                <h1>Audit History</h1>
+                <select id="history-wallet-select" onchange="loadHistory()" style="width:200px"></select>
+            </div>
+
+            <div class="card" style="padding:0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-table-body">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+                <div id="history-empty" class="empty-state">Select a wallet to view transaction history.</div>
+            </div>
+        </div>
+
+        <!-- PAGE 7: PROFILE -->
+        <div id="page-profile" class="page">
+            <h1>User Profile</h1>
+            <div class="card">
+                <div style="display:flex; align-items:center; gap:30px">
+                    <div
+                        style="width:80px; height:80px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700">
+                        <span id="profile-initial">U</span>
+                    </div>
+                    <div>
+                        <h2 id="profile-username" style="margin-bottom:5px">Username</h2>
+                        <p id="profile-email" style="color:var(--text-dim); margin:0">email@example.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Manage Assets</h2>
+            <div id="profile-wallets" class="wallet-grid">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
     </div>
 
     <script>
-        let token = localStorage.getItem('token');
-
-        const refreshAuthUI = () => {
-            const dot = document.getElementById('authDot');
-            const text = document.getElementById('authText');
-            const lBtn = document.getElementById('logoutBtn');
-            if (token) {
-                dot.classList.add('active');
-                text.innerText = "Authenticated";
-                lBtn.style.display = 'block';
-            } else {
-                dot.classList.remove('active');
-                text.innerText = "Unauthenticated";
-                lBtn.style.display = 'none';
-            }
+        const state = {
+            token: localStorage.getItem('token'),
+            user: null,
+            wallets: [],
+            currentPage: 'login'
         };
 
-        const logout = () => {
-            token = null;
-            localStorage.removeItem('token');
-            refreshAuthUI();
-        };
-
-        const generateIdempotencyKey = () => {
-            const key = 'req_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-            document.getElementById('idempotencyKey').value = key;
-        };
-
-        refreshAuthUI();
-        generateIdempotencyKey();
-
-        const api = async (url, method, data, isAuth = false) => {
+        const api = async (url, method = 'GET', data = null, isAuth = false) => {
             const headers = {};
-            if (token) headers['Authorization'] = `Bearer ${token}`;
+            if (state.token) headers['Authorization'] = `Bearer ${state.token}`;
 
             let body;
             if (isAuth) {
@@ -384,94 +496,217 @@
                 body = data ? JSON.stringify(data) : null;
             }
 
-            const options = { method, headers, body };
-
             try {
-                const response = await fetch(url, options);
+                const response = await fetch(url, { method, headers, body });
                 const result = await response.json();
                 if (!response.ok) throw result;
-                return { success: true, data: result };
+                return result;
             } catch (error) {
-                return { success: false, error: error };
+                console.error("API Error:", error);
+                throw error;
             }
         };
 
-        const renderResult = (elementId, result) => {
-            const el = document.getElementById(elementId);
-            if (result.success) {
-                el.innerHTML = `<pre>${JSON.stringify(result.data, null, 2)}</pre>`;
-            } else {
-                el.innerHTML = `<pre class="error">STATUS: ${result.error.detail || JSON.stringify(result.error)}</pre>`;
+        const navigateTo = (pageId) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                state.currentPage = pageId;
+                const link = document.getElementById(`link-${pageId}`);
+                if (link) link.classList.add('active');
+
+                // Trigger page-specific loaders
+                if (pageId === 'dashboard') loadDashboard();
+                if (pageId === 'transfer') prepareTransfer();
+                if (pageId === 'deposit') prepareDeposit();
+                if (pageId === 'history') prepareHistory();
+                if (pageId === 'profile') loadProfile();
             }
         };
 
-        // 1. LOGIN
+        const logout = () => {
+            state.token = null;
+            localStorage.removeItem('token');
+            document.getElementById('topNav').style.display = 'none';
+            navigateTo('login');
+        };
+
+        // --- Page Loaders ---
+
+        const loadDashboard = async () => {
+            try {
+                state.wallets = await api('/wallets/');
+                const grid = document.getElementById('dashboard-wallets');
+                grid.innerHTML = state.wallets.map(w => `
+                    <div class="wallet-card">
+                        <div class="wallet-id">WALLET #${w.id}</div>
+                        <div class="wallet-balance">$${w.balance.toFixed(2)}</div>
+                        <div class="status-pill status-success">${w.status}</div>
+                    </div>
+                `).join('') || '<div class="empty-state">No wallets found. Create one to begin.</div>';
+            } catch (e) {
+                if (e.detail === "Could not validate credentials") logout();
+            }
+        };
+
+        const prepareDeposit = async () => {
+            if (state.wallets.length === 0) state.wallets = await api('/wallets/');
+            const select = document.getElementById('deposit-wallet-select');
+            select.innerHTML = state.wallets.map(w => `
+                <option value="${w.id}">Wallet #${w.id} ($${w.balance.toFixed(2)})</option>
+            `).join('');
+        };
+
+        const prepareTransfer = async () => {
+            if (state.wallets.length === 0) state.wallets = await api('/wallets/');
+            const select = document.getElementById('transfer-from-select');
+            select.innerHTML = state.wallets.map(w => `
+                <option value="${w.id}">Wallet #${w.id} ($${w.balance.toFixed(2)})</option>
+            `).join('');
+            document.getElementById('transfer-key').value = 'tx_' + Math.random().toString(36).substr(2, 9);
+        };
+
+        const prepareHistory = async () => {
+            if (state.wallets.length === 0) state.wallets = await api('/wallets/');
+            const select = document.getElementById('history-wallet-select');
+            select.innerHTML = '<option value="">Select Wallet</option>' + state.wallets.map(w => `
+                <option value="${w.id}">Wallet #${w.id}</option>
+            `).join('');
+        };
+
+        const loadHistory = async () => {
+            const walletId = document.getElementById('history-wallet-select').value;
+            if (!walletId) return;
+
+            const history = await api(`/transfer/history/${walletId}`);
+            const tbody = document.getElementById('history-table-body');
+            document.getElementById('history-empty').style.display = history.length ? 'none' : 'block';
+
+            tbody.innerHTML = history.map(h => `
+                <tr>
+                    <td>${new Date(h.timestamp).toLocaleString()}</td>
+                    <td>${h.from_wallet_id}</td>
+                    <td>${h.to_wallet_id}</td>
+                    <td>$${h.amount.toFixed(2)}</td>
+                    <td><span class="status-pill status-success">COMMITTED</span></td>
+                </tr>
+            `).join('');
+        };
+
+        const loadProfile = async () => {
+            const user = await api('/users/me');
+            document.getElementById('profile-username').innerText = user.username;
+            document.getElementById('profile-email').innerText = user.email;
+            document.getElementById('profile-initial').innerText = user.username[0].toUpperCase();
+
+            const wallets = await api('/wallets/');
+            const grid = document.getElementById('profile-wallets');
+            grid.innerHTML = wallets.map(w => `
+                <div class="wallet-card">
+                    <div class="wallet-id">WALLET #${w.id}</div>
+                    <div class="wallet-balance">$${w.balance.toFixed(2)}</div>
+                    <div style="font-size:0.8rem; color:var(--text-dim)">Owner: ${user.username}</div>
+                </div>
+            `).join('');
+        };
+
+        // --- Event Handlers ---
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            const res = await api('/users/token', 'POST', { username: data.username, password: 'any' }, true);
-            if (res.success) {
-                token = res.data.access_token;
-                localStorage.setItem('token', token);
-                refreshAuthUI();
-                renderResult('loginResult', { success: true, data: "Authentication Successful" });
-            } else {
-                renderResult('loginResult', res);
+            const username = document.getElementById('login-username').value;
+            const errDiv = document.getElementById('login-error');
+            try {
+                const res = await api('/users/token', 'POST', { username, password: 'any' }, true);
+                state.token = res.access_token;
+                localStorage.setItem('token', state.token);
+
+                // Fetch user info to verify
+                const user = await api('/users/me');
+                state.user = user;
+                document.getElementById('nav-username').innerText = user.username;
+                document.getElementById('dash-username').innerText = user.username;
+
+                document.getElementById('topNav').style.display = 'flex';
+                navigateTo('dashboard');
+            } catch (err) {
+                errDiv.innerText = err.detail || "Authentication Failed";
+                errDiv.style.display = 'block';
             }
         });
 
-        // 2. CREATE USER
-        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            renderResult('createUserResult', await api('/users/', 'POST', data));
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const errDiv = document.getElementById('register-error');
+            const successDiv = document.getElementById('register-success');
+
+            errDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            try {
+                await api('/users/', 'POST', { username, email });
+                successDiv.innerText = "Identity Created! You can now login.";
+                successDiv.style.display = 'block';
+                setTimeout(() => navigateTo('login'), 2000);
+            } catch (err) {
+                errDiv.innerText = err.detail || "Registration Failed";
+                errDiv.style.display = 'block';
+            }
         });
 
-        // 3. CREATE WALLET
         document.getElementById('createWalletForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            renderResult('createWalletResult', await api('/wallets/', 'POST', data));
+            await api('/wallets/', 'POST', {});
+            navigateTo('dashboard');
         });
 
-        // 4. CHECK BALANCE
-        document.getElementById('checkBalanceForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            renderResult('checkBalanceResult', await api(`/wallets/${data.wallet_id}`, 'GET'));
-        });
-
-        // 5. DEPOSIT
         document.getElementById('depositForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            renderResult('depositResult', await api(`/wallets/${data.wallet_id}/deposit`, 'POST', { amount: parseFloat(data.amount) }));
+            const wallet_id = document.getElementById('deposit-wallet-select').value;
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            await api(`/wallets/${wallet_id}/deposit`, 'POST', { amount });
+            navigateTo('dashboard');
         });
 
-        // 6. TRANSFER
         document.getElementById('transferForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const form = e.target;
-            const data = Object.fromEntries(new FormData(form));
-
-            // Ensure data types are correct
             const payload = {
-                from_wallet_id: parseInt(data.from_wallet_id),
-                to_wallet_id: parseInt(data.to_wallet_id),
-                amount: parseFloat(data.amount),
-                idempotency_key: data.idempotency_key
+                from_wallet_id: parseInt(document.getElementById('transfer-from-select').value),
+                to_wallet_id: parseInt(document.getElementById('transfer-to-id').value),
+                amount: parseFloat(document.getElementById('transfer-amount').value),
+                idempotency_key: document.getElementById('transfer-key').value
             };
-
-            const res = await api('/transfer/', 'POST', payload);
-            renderResult('transferResult', res);
-
-            if (res.success) {
-                // Generate NEW key after success to prevent accidental duplicate submission
-                generateIdempotencyKey();
+            try {
+                await api('/transfer/', 'POST', payload);
+                navigateTo('dashboard');
+            } catch (err) {
+                alert(err.detail || "Transfer Failed");
             }
         });
-    </script>
 
+        // Initialize
+        if (state.token) {
+            (async () => {
+                try {
+                    const user = await api('/users/me');
+                    document.getElementById('nav-username').innerText = user.username;
+                    document.getElementById('dash-username').innerText = user.username;
+                    document.getElementById('topNav').style.display = 'flex';
+                    navigateTo('dashboard');
+                } catch {
+                    logout();
+                }
+            })();
+        } else {
+            navigateTo('login');
+        }
+
+    </script>
 </body>
 
 </html>

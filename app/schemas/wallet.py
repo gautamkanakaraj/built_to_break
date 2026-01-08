@@ -6,7 +6,7 @@ class WalletBase(BaseModel):
     pass
 
 class WalletCreate(WalletBase):
-    user_id: int
+    user_id: Optional[int] = None
 
 class Wallet(WalletBase):
     id: int

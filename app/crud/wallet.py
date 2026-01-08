@@ -14,6 +14,9 @@ def create_wallet(db: Session, wallet: WalletCreate):
 def get_wallet(db: Session, wallet_id: int):
     return db.query(Wallet).filter(Wallet.id == wallet_id).first()
 
+def get_wallets_by_user(db: Session, user_id: int):
+    return db.query(Wallet).filter(Wallet.user_id == user_id).all()
+
 def deposit_wallet(db: Session, wallet_id: int, amount: float):
     if amount <= 0:
         raise HTTPException(status_code=400, detail="Deposit amount must be positive. Use /transfer/ for movements.")
