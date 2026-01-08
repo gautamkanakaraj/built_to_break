@@ -7,6 +7,7 @@ These are now strictly prevented by the hardened logic and DB constraints:
 - **Double Spend**: Guaranteed to fail one of the concurrent requests via row-level locking (`FOR UPDATE`).
 - **Negative Balances**: Prevented by DB `CHECK` constraints and Pydantic validators.
 - **Replay Attacks**: Prevented by `idempotency_key` uniqueness in the ledger.
+- **Password Bypass**: Login now enforces strict passkey verification via PBKDF2 hashing (replaces username-only check).
 
 ## 🟠 Strategic Failures (By Design)
 These are scenarios where the system "fails" in a controlled, non-destructive way:

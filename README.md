@@ -17,7 +17,8 @@ https://vimeo.com/1152641810?share=copy&fl=sv&fe=ci
 2.  **Atomicity**: Every transfer is a single, atomic database transaction. Internal `CheckConstraint` ensures balances never go negative.
 3.  **Idempotency**: Forced request-level idempotency via a unique `idempotency_key` enforced at the database layer.
 4.  **JWT Authentication**: All transfer operations require a valid JWT token to identify the caller.
-5.  **Isolation**: Prevents Read Skew using atomic bulk-read endpoints for multi-wallet state checks.
+5.  **Passkey Security**: Login requires a verified password (passkey) hashed with `PBKDF2-SHA256`.
+6.  **Isolation**: Prevents Read Skew using atomic bulk-read endpoints for multi-wallet state checks.
 
 ---
 
