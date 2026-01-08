@@ -5,7 +5,6 @@ This project contains a **baseline** wallet transaction engine.
 **⚠️ WARNING: INTENTIONALLY VULNERABLE ⚠️**
 
 This system is designed for the "Build Phase" of the Build2Break hackathon.
-It **intentionally omits** concurrency controls to serve as a testbed for breaking and later hardening.
 
 ## Known Limitations (By Design)
 
