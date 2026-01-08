@@ -8,6 +8,12 @@ class WalletStatus(str, enum.Enum):
     ACTIVE = "ACTIVE"
     INACTIVE = "INACTIVE"
 
+class BatchStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+
 class User(Base):
     __tablename__ = "users"
 
@@ -33,6 +39,21 @@ class Wallet(Base):
     sent_transactions = relationship("Transaction", foreign_keys="Transaction.from_wallet_id")
     received_transactions = relationship("Transaction", foreign_keys="Transaction.to_wallet_id")
 
+class Batch(Base):
+    __tablename__ = "batches"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    source_wallet_id = Column(Integer, ForeignKey("wallets.id"))
+    status = Column(Enum(BatchStatus), default=BatchStatus.PENDING)
+    total_amount = Column(Float, default=0.0)
+    item_count = Column(Integer, default=0)
+    success_count = Column(Integer, default=0)
+    failure_count = Column(Integer, default=0)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    transactions = relationship("Transaction", back_populates="batch")
+
 class Transaction(Base):
     __tablename__ = "transactions"
 
@@ -42,3 +63,6 @@ class Transaction(Base):
     amount = Column(Float)
     timestamp = Column(DateTime, default=datetime.utcnow)
     idempotency_key = Column(String, unique=True, index=True, nullable=True)
+    batch_id = Column(Integer, ForeignKey("batches.id"), nullable=True)
+
+    batch = relationship("Batch", back_populates="transactions")

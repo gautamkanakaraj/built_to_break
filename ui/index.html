@@ -271,6 +271,7 @@
         <div class="nav-links">
             <a onclick="navigateTo('dashboard')" id="link-dashboard">Dashboard</a>
             <a onclick="navigateTo('transfer')" id="link-transfer">Transfer</a>
+            <a onclick="navigateTo('batch-payout')" id="link-batch-payout">Batches</a>
             <a onclick="navigateTo('history')" id="link-history">History</a>
             <a onclick="navigateTo('profile')" id="link-profile">Profile</a>
         </div>
@@ -451,6 +452,85 @@
             </div>
         </div>
 
+        <!-- PAGE 8: BATCH PAYOUT INIT -->
+        <div id="page-batch-payout" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px">
+                <h1>Batch Payouts</h1>
+                <button onclick="navigateTo('batch-list')" class="secondary">View Past Batches</button>
+            </div>
+            <div class="card">
+                <h2>Initiate New Payout</h2>
+                <p style="color:var(--text-dim); margin-bottom:30px">Upload a CSV to coordinate multiple transfers.</p>
+                <form id="batchInitForm">
+                    <div class="form-group">
+                        <label>Source Wallet</label>
+                        <select id="batch-source-select" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Recipient Data (CSV)</label>
+                        <input type="file" id="batch-file" accept=".csv" required style="padding:10px">
+                        <p style="font-size:0.75rem; color:var(--text-dim); margin-top:5px">Format: recipient_id, amount
+                            (header required)</p>
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button type="submit">Start Batch Processing</button>
+                        <button type="button" onclick="navigateTo('dashboard')" class="secondary">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PAGE 9: BATCH LIST -->
+        <div id="page-batch-list" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+                <h1>Batch History</h1>
+                <button onclick="navigateTo('batch-payout')" class="secondary">New Payout</button>
+            </div>
+            <div class="card" style="padding:0">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Timestamp</th>
+                            <th>Source</th>
+                            <th>Amount</th>
+                            <th>Success/Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batch-list-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PAGE 10: BATCH STATUS DETAIL -->
+        <div id="page-batch-status" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
+                <h1>Batch Status</h1>
+                <button onclick="navigateTo('batch-list')" class="secondary">Back to List</button>
+            </div>
+            <div id="batch-detail-header" class="card"
+                style="display:grid; grid-template-columns: repeat(4, 1fr); gap:20px; text-align:center">
+                <!-- Dynamic batch stats -->
+            </div>
+            <div class="card" style="padding:0">
+                <h3 style="padding:20px; margin:0; border-bottom:1px solid var(--glass-border)">Coordinated Transfers
+                </h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Recipient</th>
+                            <th>Amount</th>
+                            <th>Idempotency Key</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batch-transfers-body"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- PAGE 7: PROFILE -->
         <div id="page-profile" class="page">
             <h1>User Profile</h1>
@@ -524,6 +604,8 @@
                 if (pageId === 'deposit') prepareDeposit();
                 if (pageId === 'history') prepareHistory();
                 if (pageId === 'profile') loadProfile();
+                if (pageId === 'batch-payout') prepareBatchPayout();
+                if (pageId === 'batch-list') loadBatchList();
             }
         };
 
@@ -613,6 +695,53 @@
             `).join('');
         };
 
+        const prepareBatchPayout = async () => {
+            if (state.wallets.length === 0) state.wallets = await api('/wallets/');
+            const select = document.getElementById('batch-source-select');
+            select.innerHTML = state.wallets.map(w => `
+                <option value="${w.id}">Wallet #${w.id} ($${w.balance.toFixed(2)})</option>
+            `).join('');
+        };
+
+        const loadBatchList = async () => {
+            const batches = await api('/batches/');
+            const tbody = document.getElementById('batch-list-body');
+            tbody.innerHTML = batches.map(b => `
+                <tr>
+                    <td>#${b.id}</td>
+                    <td>${new Date(b.timestamp).toLocaleString()}</td>
+                    <td>Wallet #${b.source_wallet_id}</td>
+                    <td>$${b.total_amount.toFixed(2)}</td>
+                    <td>${b.success_count}/${b.item_count}</td>
+                    <td><span class="status-pill ${b.status === 'COMPLETED' ? 'status-success' : ''}">${b.status}</span></td>
+                    <td><button onclick="viewBatch(${b.id})" style="padding:5px 10px; font-size:0.7rem">Details</button></td>
+                </tr>
+            `).join('');
+        };
+
+        const viewBatch = async (batchId) => {
+            const batch = await api(`/batches/${batchId}`);
+            navigateTo('batch-status');
+
+            const header = document.getElementById('batch-detail-header');
+            header.innerHTML = `
+                <div><label>Status</label><div style="font-size:1.2rem; font-weight:700">${batch.status}</div></div>
+                <div><label>Total Success</label><div style="font-size:1.2rem; font-weight:700">$${batch.total_amount.toFixed(2)}</div></div>
+                <div><label>Recipient Count</label><div style="font-size:1.2rem; font-weight:700">${batch.item_count}</div></div>
+                <div><label>Success Rate</label><div style="font-size:1.2rem; font-weight:700">${Math.round((batch.success_count / batch.item_count) * 100 || 0)}%</div></div>
+            `;
+
+            const tbody = document.getElementById('batch-transfers-body');
+            tbody.innerHTML = batch.transactions.map(t => `
+                <tr>
+                    <td>#${t.id}</td>
+                    <td>Wallet #${t.to_wallet_id}</td>
+                    <td>$${t.amount.toFixed(2)}</td>
+                    <td style="font-family:monospace; font-size:0.7rem">${t.idempotency_key}</td>
+                </tr>
+            `).join('');
+        };
+
         // --- Event Handlers ---
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -686,6 +815,36 @@
                 navigateTo('dashboard');
             } catch (err) {
                 alert(err.detail || "Transfer Failed");
+            }
+        });
+
+        document.getElementById('batchInitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const source_wallet_id = parseInt(document.getElementById('batch-source-select').value);
+            const fileInput = document.getElementById('batch-file');
+
+            try {
+                // 1. Create Batch
+                const batch = await api('/batches/', 'POST', { source_wallet_id });
+
+                // 2. Execute Batch (Upload File)
+                // We don't use the api helper here because it's a multipart request
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+
+                const response = await fetch(`/batches/${batch.id}/execute`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${state.token}` },
+                    body: formData
+                });
+
+                if (!response.ok) throw await response.json();
+
+                alert("Batch processing initiated!");
+                navigateTo('batch-list');
+
+            } catch (err) {
+                alert(err.detail || "Batch Execution Failed");
             }
         });
 

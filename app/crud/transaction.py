@@ -65,7 +65,8 @@ def create_transfer_secure(db: Session, transaction: TransactionCreate):
         from_wallet_id=transaction.from_wallet_id,
         to_wallet_id=transaction.to_wallet_id,
         amount=transaction.amount,
-        idempotency_key=transaction.idempotency_key
+        idempotency_key=transaction.idempotency_key,
+        batch_id=transaction.batch_id
     )
     db.add(db_txn)
     
