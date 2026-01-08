@@ -1,6 +1,6 @@
 # G-Wallet (Hardened Rebuild Phase)
 
-This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks.
+This project contains a **production-hardened** wallet transaction engine designed to resist concurrency anomalies, race conditions, and adversarial attacks. It now includes a **Batch Payouts Layer** for high-volume transaction coordination.
 
 ## 🛡️ Hardening Features (ACID Guaranteed)
 
@@ -9,6 +9,26 @@ This project contains a **production-hardened** wallet transaction engine design
 3.  **Idempotency**: Forced request-level idempotency via a unique `idempotency_key` enforced at the database layer.
 4.  **JWT Authentication**: All transfer operations require a valid JWT token to identify the caller.
 5.  **Isolation**: Prevents Read Skew using atomic bulk-read endpoints for multi-wallet state checks.
+
+---
+
+## 📦 Mass Payouts (Batch Execution)
+
+The system includes a batch coordination layer allowing users to execute hundreds of payouts via a single CSV upload.
+
+### Batch Flow:
+1.  **Create Batch**: Define a source wallet for the payouts.
+2.  **Upload CSV**: Provide a list of recipients and amounts.
+3.  **Execute**: The engine processes each row with unique idempotency keys (`batch_{id}_row_{index}`).
+4.  **Monitor**: Real-time progress tracking (Success/Failure/Processed Amount).
+
+### CSV Format:
+```csv
+recipient_id,amount
+2,50.00
+3,125.50
+4,10.00
+```
 
 ---
 
@@ -44,9 +64,9 @@ python3 isolation_test.py
 
 ## 📖 Documentation
 Detailed architectural analysis and failure mapping:
-- [ui_guide.md](ui_guide.md): Comprehensive field-level guide for the Control Panel UI.
-- [document2.txt](document2.txt): Hardened Architecture & failure-to-fix mapping.
-- [document.txt](document.txt): Analysis of the original build-phase vulnerabilities (for comparison).
+- [ARCHITECTURE.md](ARCHITECTURE.md): Comprehensive system architecture, hardening journey, and database schema.
+- [ui_guide.md](ui_guide.md): field-level guide for the Control Panel UI.
+- [EXPECTED_FAILURES.md](EXPECTED_FAILURES.md): Detailed scenarios of race conditions and vulnerabilities.
 
 ## 🛠 Tech Stack
 - **FastAPI**: Modern high-performance web framework.
