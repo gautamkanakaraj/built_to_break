@@ -13,7 +13,7 @@ def get_token(username):
     # Wait! Our `login_for_access_token` checks if user exists.
     # So we Create User -> Login -> Get Token.
     r = requests.post(f"{BASE_URL}/users/token", 
-                      data={"username": username, "password": "any"},
+                      data={"username": username, "password": "password123"},
                       headers={"Content-Type": "application/x-www-form-urlencoded"})
     if r.status_code == 200:
         return r.json()["access_token"]
@@ -24,7 +24,8 @@ def create_user_and_wallet(email_prefix):
     username = f"{email_prefix}_{random.randint(10000,99999)}"
     user_payload = {
         "username": username,
-        "email": f"{email_prefix}_{random.randint(10000,99999)}@example.com"
+        "email": f"{email_prefix}_{random.randint(10000,99999)}@example.com",
+        "password": "password123"
     }
     r = requests.post(f"{BASE_URL}/users/", json=user_payload)
     if r.status_code != 200:
@@ -39,7 +40,7 @@ def create_user_and_wallet(email_prefix):
     # The prompt said "JWT authentication is ALLOWED only to identify the caller." 
     # My plan only updated api/transfer.py. So likely wallet creation is still open.
     
-    r = requests.post(f"{BASE_URL}/wallets/", json={"user_id": r.json()["id"]})
+    r = requests.post(f"{BASE_URL}/wallets/", json={"user_id": r.json()["id"]}, headers=headers)
     wallet_id = r.json()["id"]
     return wallet_id, token
 

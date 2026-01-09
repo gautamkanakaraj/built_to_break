@@ -79,21 +79,43 @@ async def execute_batch(
 
     # 2. Parse CSV & Create/Sync Rows
     content = await file.read()
-    decoded = content.decode('utf-8')
-    csv_reader = csv.DictReader(io.StringIO(decoded))
+    try:
+        decoded = content.decode('utf-8-sig')
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid file encoding. Please upload a valid UTF-8 CSV.")
+        
+    csv_reader = csv.DictReader(io.StringIO(decoded), skipinitialspace=True)
+    
+    # Robust header handling: strip whitespace from headers
+    if csv_reader.fieldnames:
+        csv_reader.fieldnames = [name.strip() for name in csv_reader.fieldnames]
+    
+    # Validate headers
+    required_headers = {'recipient_id', 'amount'}
+    if not csv_reader.fieldnames or not required_headers.issubset(set(csv_reader.fieldnames)):
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Invalid CSV format. Required headers: {', '.join(required_headers)}. Found: {csv_reader.fieldnames}"
+        )
+
     rows = list(csv_reader)
     
     # Sync database BatchRow records if they don't exist (first time)
     if not batch.rows:
-        for index, row in enumerate(rows):
-            batch_crud.create_batch_row(
-                db, 
-                batch_id=batch_id, 
-                index=index, 
-                recipient_id=int(row['recipient_id']), 
-                amount=float(row['amount'])
-            )
-        db.refresh(batch)
+        try:
+            for index, row in enumerate(rows):
+                batch_crud.create_batch_row(
+                    db, 
+                    batch_id=batch_id, 
+                    index=index, 
+                    recipient_id=int(row['recipient_id']), 
+                    amount=float(row['amount'])
+                )
+            db.refresh(batch)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Data format error in CSV: {str(e)}")
+        except KeyError as e:
+            raise HTTPException(status_code=400, detail=f"Missing column in row: {str(e)}")
 
     # 3. OPTIONAL PRE-CHECK (Non-binding)
     total_batch_amount = sum(float(row['amount']) for row in rows)
