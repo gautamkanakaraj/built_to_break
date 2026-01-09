@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt
@@ -6,8 +7,9 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from pydantic import BaseModel
 
-# Configuration (In a real app, use env vars)
-SECRET_KEY = "build-to-break-hackathon-secret-key"
+# Configuration
+# LOADED FROM ENVIRONMENT FOR SECURITY (OWASP Top 10: Broken Authentication)
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "fallback-insecure-key-for-dev-only")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
